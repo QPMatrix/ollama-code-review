@@ -1,14 +1,35 @@
-import { z } from "zod";
-import { AppConfigSchema, UserSessionSchema } from "./app-state.schemas";
-import { FrameworkTypeSchema, LanguageTypeSchema, ProjectTypeSchema, CodeStandardRuleSchema, CodeStandardSchema } from "./code-standard.schemas";
-import { GitHubUserSchema, GitHubOrganizationSchema, GitHubRepositorySchema } from "./github.scheams";
-import { OllamaModelSchema, OllamaModelsResponseSchema, OllamaGenerateRequestSchema, OllamaGenerateResponseSchema } from "./ollama.schemas";
-import { ReviewIssueSchema, CodeReviewRequestSchema, CodeReviewResponseSchema } from "./review.scheams";
+import type { z } from 'zod';
+import type { AppConfigSchema, UserSessionSchema } from './app-state.schemas';
+import type {
+	CodeStandardRuleSchema,
+	CodeStandardSchema,
+	FrameworkTypeSchema,
+	LanguageTypeSchema,
+	ProjectTypeSchema,
+} from './code-standard.schemas';
+import type {
+	GitHubOrganizationSchema,
+	GitHubRepositorySchema,
+	GitHubUserSchema,
+} from './github.scheams';
+import type {
+	OllamaGenerateRequestSchema,
+	OllamaGenerateResponseSchema,
+	OllamaModelSchema,
+	OllamaModelsResponseSchema,
+} from './ollama.schemas';
+import type {
+	CodeReviewRequestSchema,
+	CodeReviewResponseSchema,
+	ReviewIssueSchema,
+} from './review.scheams';
 
 export type OllamaModel = z.infer<typeof OllamaModelSchema>;
 export type OllamaModelsResponse = z.infer<typeof OllamaModelsResponseSchema>;
 export type OllamaGenerateRequest = z.infer<typeof OllamaGenerateRequestSchema>;
-export type OllamaGenerateResponse = z.infer<typeof OllamaGenerateResponseSchema>;
+export type OllamaGenerateResponse = z.infer<
+	typeof OllamaGenerateResponseSchema
+>;
 
 export type GitHubUser = z.infer<typeof GitHubUserSchema>;
 export type GitHubOrganization = z.infer<typeof GitHubOrganizationSchema>;
