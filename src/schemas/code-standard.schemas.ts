@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { SeveritySchema } from './shared.scheams';
 
 export const FrameworkTypeSchema = z.enum([
 	'react',
@@ -39,7 +40,6 @@ const CodeStandardRuleCategorySchema = z.enum([
 	'best-practices',
 	'documentation',
 ]);
-const CodeStandardRuleSeveritySchema = z.enum(['error', 'warning', 'info']);
 const CodeStandardRuleExamplesSchema = z
 	.object({
 		good: z.array(z.string()).optional(),
@@ -51,7 +51,7 @@ export const CodeStandardRuleSchema = z.object({
 	id: z.string(),
 	name: z.string(),
 	description: z.string(),
-	severity: CodeStandardRuleSeveritySchema,
+	severity: SeveritySchema,
 	category: CodeStandardRuleCategorySchema,
 	rule: z.string(), // Natural language rule
 	examples: CodeStandardRuleExamplesSchema,
