@@ -1,0 +1,3 @@
+
+echo "Running format"
+bun run check:fix
