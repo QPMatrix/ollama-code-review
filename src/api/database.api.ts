@@ -1,5 +1,5 @@
-import { AppConfig, CodeReviewResponse, CodeStandard } from '@/schemas';
 import { invoke } from '@tauri-apps/api/core';
+import type { AppConfig, CodeReviewResponse, CodeStandard } from '@/schemas';
 
 export class DatabaseAPI {
 	async initDatabase(): Promise<string> {

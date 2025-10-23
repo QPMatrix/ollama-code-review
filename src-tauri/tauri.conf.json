@@ -48,10 +48,7 @@
 			"targets": ["stdout", "webview"]
 		},
 		"http": {
-			"scope": [
-				"http://localhost:11434/*",
-				"https://api.github.com/*"
-			]
+			"scope": ["http://localhost:11434/*", "https://api.github.com/*"]
 		},
 		"fs": {
 			"scope": ["$APPDATA/*", "$APPDATA/**"]
