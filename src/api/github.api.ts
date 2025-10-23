@@ -1,7 +1,7 @@
 import {
 	type GitHubOrganization,
 	GitHubOrganizationSchema,
-	GitHubRepository,
+	type GitHubRepository,
 	GitHubRepositorySchema,
 	type GitHubUser,
 	GitHubUserSchema,
