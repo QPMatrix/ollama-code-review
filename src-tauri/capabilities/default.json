@@ -28,16 +28,20 @@
 		"dialog:allow-ask",
 		"dialog:allow-confirm",
 		{
-			"identifier": "fs:default",
+			"identifier": "fs:scope-appdata",
+			"description": "Filesystem access restricted to app-specific data directory only. The app stores SQLite database (ollama_code_reviewer.db) for code standards, user config, and review history.",
 			"allow": [
 				{
-					"path": "$APPDATA/*"
+					"path": "$APPDATA/com.qpmatrix.ollama-code-review/*"
 				},
 				{
-					"path": "$APPDATA/**"
+					"path": "$APPDATA/com.qpmatrix.ollama-code-review/ollama_code_reviewer.db"
 				}
 			]
 		},
+		"fs:allow-app-read",
+		"fs:allow-app-write",
+		"fs:allow-app-meta",
 		"shell:default",
 		"shell:allow-open"
 	]
