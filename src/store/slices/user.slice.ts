@@ -115,7 +115,7 @@ export const createUserSlice: StateCreator<AppStore, [], [], UserSlice> = (
 		// Update config to remove token
 		const currentConfig = get().userConfig;
 		if (currentConfig) {
-			const { githubToken, ...rest } = currentConfig;
+			const { githubToken: _githubToken, ...rest } = currentConfig;
 			databaseAPI.saveUserConfig(rest);
 			set({ userConfig: rest });
 		}
