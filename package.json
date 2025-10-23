@@ -6,7 +6,7 @@
 	"private": true,
 	"scripts": {
 		"prepare": "husky",
-		"dev": "bun run server.ts",
+		"dev": "bun run src/server.ts",
 		"build": "bun build src/index.tsx --outdir=build --minify",
 		"preview": "bun build src/index.tsx --outdir=build && bun serve build",
 		"tauri": "bunx tauri",

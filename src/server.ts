@@ -1,11 +1,12 @@
+import { serve } from 'bun';
 import indexHtml from './index.html';
 
-Bun.serve({
+const server = serve({
 	port: 3000,
 	routes: {
 		'/': indexHtml,
 	},
-	development: {
+	development: process.env.NODE_ENV !== 'production' && {
 		hmr: true,
 		console: true,
 	},
@@ -14,4 +15,4 @@ Bun.serve({
 	},
 });
 
-console.log('🚀 Development server running at http://localhost:3000');
+console.log(`🚀 Development server running at ${server.url}`);
