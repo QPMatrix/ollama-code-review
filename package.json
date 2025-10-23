@@ -6,6 +6,13 @@
 	"private": true,
 	"scripts": {
 		"prepare": "husky",
+		"dev": "bun run src/server.ts",
+		"build": "bun build src/index.tsx --outdir=build --minify",
+		"preview": "bun build src/index.tsx --outdir=build && bun serve build",
+		"tauri": "bunx tauri",
+		"tauri:dev": "bunx tauri dev",
+		"tauri:build": "bunx tauri build",
+		"type:check": "bunx tsc --noEmit",
 		"format": "biome format --write",
 		"format:check": "biome format",
 		"lint:check": "biome lint",

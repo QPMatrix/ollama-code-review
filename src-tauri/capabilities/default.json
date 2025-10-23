@@ -1,7 +1,48 @@
 {
 	"$schema": "../gen/schemas/desktop-schema.json",
 	"identifier": "default",
-	"description": "enables the default permissions",
+	"description": "Capabilities for Ollama Code Review application",
 	"windows": ["main"],
-	"permissions": ["core:default"]
+	"permissions": [
+		"core:default",
+		"core:window:default",
+		"core:app:default",
+		"core:event:default",
+		"core:path:default",
+		{
+			"identifier": "http:default",
+			"allow": [
+				{
+					"url": "http://localhost:11434/*"
+				},
+				{
+					"url": "https://api.github.com/*"
+				}
+			]
+		},
+		"log:default",
+		"dialog:default",
+		"dialog:allow-open",
+		"dialog:allow-save",
+		"dialog:allow-message",
+		"dialog:allow-ask",
+		"dialog:allow-confirm",
+		{
+			"identifier": "fs:scope-appdata",
+			"description": "Filesystem access restricted to app-specific data directory only. The app stores SQLite database (ollama_code_reviewer.db) for code standards, user config, and review history.",
+			"allow": [
+				{
+					"path": "$APPDATA/com.qpmatrix.ollama-code-review/*"
+				},
+				{
+					"path": "$APPDATA/com.qpmatrix.ollama-code-review/ollama_code_reviewer.db"
+				}
+			]
+		},
+		"fs:allow-app-read",
+		"fs:allow-app-write",
+		"fs:allow-app-meta",
+		"shell:default",
+		"shell:allow-open"
+	]
 }
