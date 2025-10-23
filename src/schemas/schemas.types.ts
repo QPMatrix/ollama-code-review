@@ -13,10 +13,14 @@ import type {
 	GitHubUserSchema,
 } from './github.scheams';
 import type {
+	OllamaChatRequestSchema,
+	OllamaChatResponseSchema,
 	OllamaGenerateRequestSchema,
 	OllamaGenerateResponseSchema,
+	OllamaMessageSchema,
 	OllamaModelSchema,
 	OllamaModelsResponseSchema,
+	OllamaRequestOptionsSchema,
 } from './ollama.schemas';
 import type {
 	CodeReviewRequestSchema,
@@ -30,6 +34,10 @@ export type OllamaGenerateRequest = z.infer<typeof OllamaGenerateRequestSchema>;
 export type OllamaGenerateResponse = z.infer<
 	typeof OllamaGenerateResponseSchema
 >;
+export type OllamaChatRequest = z.infer<typeof OllamaChatRequestSchema>;
+export type OllamaChatResponse = z.infer<typeof OllamaChatResponseSchema>;
+export type OllamaMessage = z.infer<typeof OllamaMessageSchema>;
+export type OllamaRequestOptions = z.infer<typeof OllamaRequestOptionsSchema>;
 
 export type GitHubUser = z.infer<typeof GitHubUserSchema>;
 export type GitHubOrganization = z.infer<typeof GitHubOrganizationSchema>;

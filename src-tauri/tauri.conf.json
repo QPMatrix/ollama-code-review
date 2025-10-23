@@ -1,0 +1,60 @@
+{
+	"$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+	"productName": "Ollama Code Review",
+	"version": "0.1.0",
+	"identifier": "com.qpmatrix.ollama-code-review",
+	"build": {
+		"frontendDist": "../build",
+		"devUrl": "http://localhost:3000",
+		"beforeDevCommand": "bun dev",
+		"beforeBuildCommand": "bun build"
+	},
+	"app": {
+		"windows": [
+			{
+				"title": "Ollama Code Review",
+				"width": 1200,
+				"height": 800,
+				"minWidth": 800,
+				"minHeight": 600,
+				"resizable": true,
+				"fullscreen": false,
+				"decorations": true,
+				"alwaysOnTop": false,
+				"center": true
+			}
+		],
+		"security": {
+			"csp": null,
+			"dangerousDisableAssetCspModification": false
+		}
+	},
+	"bundle": {
+		"active": true,
+		"targets": "all",
+		"icon": [
+			"icons/32x32.png",
+			"icons/128x128.png",
+			"icons/128x128@2x.png",
+			"icons/icon.icns",
+			"icons/icon.ico"
+		],
+		"category": "DeveloperTool",
+		"shortDescription": "AI-powered code review tool using Ollama",
+		"longDescription": "Ollama Code Review is a developer tool that uses local AI models through Ollama to review code, suggest improvements, and enforce coding standards."
+	},
+	"plugins": {
+		"log": {
+			"targets": ["stdout", "webview"]
+		},
+		"http": {
+			"scope": ["http://localhost:11434/*", "https://api.github.com/*"]
+		},
+		"fs": {
+			"scope": ["$APPDATA/*", "$APPDATA/**"]
+		},
+		"shell": {
+			"open": true
+		}
+	}
+}
