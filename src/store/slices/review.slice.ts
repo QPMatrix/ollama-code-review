@@ -1,7 +1,7 @@
 import type { StateCreator } from 'zustand';
-import type { CodeReviewResponse } from '@/schemas/schemas.types';
 import { databaseAPI } from '@/api/database.api';
 import { ollamaAPI } from '@/api/ollama.api';
+import type { CodeReviewResponse } from '@/schemas/schemas.types';
 import type { AppStore, ReviewSlice } from '../types';
 
 export const createReviewSlice: StateCreator<AppStore, [], [], ReviewSlice> = (
