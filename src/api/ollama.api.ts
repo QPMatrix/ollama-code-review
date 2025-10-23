@@ -1,31 +1,34 @@
-import { OllamaModel, OllamaModelSchema } from "@/schemas";
-import axios, { AxiosInstance } from "axios";
+import axios, { type AxiosInstance } from 'axios';
+import { type OllamaModel, OllamaModelSchema } from '@/schemas';
 
-export class OllamaAPI{
-    private baseUrl:string
-    private axiosInstance: AxiosInstance
-    constructor(baseUrl:string = 'http://localhost:11434'){
-        this.baseUrl = baseUrl
-        this.axiosInstance = axios.create({
-            baseURL: this.baseUrl,
-        })
-    }
+export class OllamaAPI {
+	private baseUrl: string;
+	private axiosInstance: AxiosInstance;
+	constructor(baseUrl: string = 'http://localhost:11434') {
+		this.baseUrl = baseUrl;
+		this.axiosInstance = axios.create({
+			baseURL: this.baseUrl,
+		});
+	}
 
-      setBaseUrl(url: string) {
-    this.baseUrl = url;
-  }
+	setBaseUrl(url: string) {
+		this.baseUrl = url;
+	}
 
-  async getModels():Promise<OllamaModel[]>{
-    try {
-        const response = await this.axiosInstance.get<{models:OllamaModel[]}>('/api/tags')
-        if(response.data){
-            return response.data.models.map((model)=> OllamaModelSchema.parse(model))
-        }
-        throw new Error(`Failed to fetch models`)
-    } catch (error) {
-        console.error(`Error fetching Ollama models:`,error)
-        throw error
-        
-    }
-  }
+	async getModels(): Promise<OllamaModel[]> {
+		try {
+			const response = await this.axiosInstance.get<{ models: OllamaModel[] }>(
+				'/api/tags',
+			);
+			if (response.data) {
+				return response.data.models.map((model) =>
+					OllamaModelSchema.parse(model),
+				);
+			}
+			throw new Error(`Failed to fetch models`);
+		} catch (error) {
+			console.error(`Error fetching Ollama models:`, error);
+			throw error;
+		}
+	}
 }
