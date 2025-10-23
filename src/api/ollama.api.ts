@@ -1,4 +1,4 @@
-import axios, { type AxiosInstance } from 'axios';
+import { HttpClient } from '@/api/http-client';
 import {
 	type OllamaChatRequest,
 	OllamaChatRequestSchema,
@@ -9,12 +9,12 @@ import {
 
 export class OllamaAPI {
 	private baseUrl: string;
-	private axiosInstance: AxiosInstance;
+	private httpClient: HttpClient;
 	constructor(baseUrl: string = 'http://localhost:11434') {
 		this.baseUrl = baseUrl;
-		this.axiosInstance = axios.create({
-			baseURL: this.baseUrl,
-			headers: {
+		this.httpClient = new HttpClient({
+			baseUrl: this.baseUrl,
+			defaultHeaders: {
 				'Content-Type': 'application/json',
 			},
 		});
@@ -22,15 +22,15 @@ export class OllamaAPI {
 
 	setBaseUrl(url: string) {
 		this.baseUrl = url;
-		this.axiosInstance.defaults.baseURL = url;
+		this.httpClient.setBaseUrl(url);
 	}
 	/**
 	 * Get list of available models
 	 */
 	async getModels(): Promise<OllamaModel[]> {
 		try {
-			const response = await this.axiosInstance.get('/api/tags');
-			const { models } = OllamaModelsResponseSchema.parse(response.data);
+			const data = await this.httpClient.get('/api/tags');
+			const { models } = OllamaModelsResponseSchema.parse(data);
 
 			return models;
 		} catch (error) {
@@ -44,11 +44,11 @@ export class OllamaAPI {
 	 */
 	async ping(): Promise<boolean> {
 		try {
-			const response = await this.axiosInstance.get('/api/tags', {
+			await this.httpClient.get('/api/tags', {
 				timeout: 5_000,
 			});
 
-			return !!response.data;
+			return true;
 		} catch {
 			return false;
 		}
@@ -60,11 +60,11 @@ export class OllamaAPI {
 	async chat(request: OllamaChatRequest): Promise<string> {
 		try {
 			const validatedRequest = OllamaChatRequestSchema.parse(request);
-			const response = await this.axiosInstance.post(
+			const response = await this.httpClient.post(
 				'/api/chat',
 				validatedRequest,
 			);
-			const parsed = OllamaChatResponseSchema.parse(response.data);
+			const parsed = OllamaChatResponseSchema.parse(response);
 
 			return parsed.message.content;
 		} catch (error) {
@@ -162,7 +162,7 @@ export class OllamaAPI {
 	 */
 	async pullModel(modelName: string): Promise<void> {
 		try {
-			await this.axiosInstance.post('/api/pull', { name: modelName });
+			await this.httpClient.post('/api/pull', { name: modelName });
 		} catch (error) {
 			console.error('Error pulling model:', error);
 			throw error;
@@ -174,8 +174,8 @@ export class OllamaAPI {
 	 */
 	async deleteModel(modelName: string): Promise<void> {
 		try {
-			await this.axiosInstance.delete('/api/delete', {
-				data: { name: modelName },
+			await this.httpClient.delete('/api/delete', {
+				body: { name: modelName },
 			});
 		} catch (error) {
 			console.error('Error deleting model:', error);

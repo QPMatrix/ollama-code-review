@@ -243,6 +243,7 @@ fn main() {
     let connection = Connection::open(db_path).expect("Failed to open database");
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_http::init())
         .manage(AppState {
             db: Mutex::new(connection),
         })
@@ -261,4 +262,3 @@ fn main() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
-
