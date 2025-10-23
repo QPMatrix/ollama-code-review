@@ -1,4 +1,4 @@
-import { invoke } from '@tauri-apps/api/core';
+import type { invoke } from '@tauri-apps/api/core';
 import type { AppConfig, CodeReviewResponse, CodeStandard } from '@/schemas';
 
 type Invoke = typeof invoke;
