@@ -103,7 +103,7 @@ export const createUserSlice: StateCreator<AppStore, [], [], UserSlice> = (
 		}
 	},
 
-	logoutGitHub: () => {
+	logoutGitHub: async () => {
 		githubAPI.clearToken();
 		set({
 			githubUser: null,
@@ -116,8 +116,13 @@ export const createUserSlice: StateCreator<AppStore, [], [], UserSlice> = (
 		const currentConfig = get().userConfig;
 		if (currentConfig) {
 			const { githubToken: _githubToken, ...rest } = currentConfig;
-			databaseAPI.saveUserConfig(rest);
-			set({ userConfig: rest });
+			try {
+				await databaseAPI.saveUserConfig(rest);
+				set({ userConfig: rest });
+			} catch (error) {
+				console.error('Failed to remove GitHub token from config:', error);
+				// Config state already updated optimistically above
+			}
 		}
 	},
 });

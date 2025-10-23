@@ -42,19 +42,5 @@
 		"category": "DeveloperTool",
 		"shortDescription": "AI-powered code review tool using Ollama",
 		"longDescription": "Ollama Code Review is a developer tool that uses local AI models through Ollama to review code, suggest improvements, and enforce coding standards."
-	},
-	"plugins": {
-		"log": {
-			"targets": ["stdout", "webview"]
-		},
-		"http": {
-			"scope": ["http://localhost:11434/*", "https://api.github.com/*"]
-		},
-		"fs": {
-			"scope": ["$APPDATA/*", "$APPDATA/**"]
-		},
-		"shell": {
-			"open": true
-		}
 	}
 }

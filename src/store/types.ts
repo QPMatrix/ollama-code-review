@@ -16,7 +16,7 @@ export interface UserSlice {
 
 	setUserConfig: (config: AppConfig) => Promise<void>;
 	loginWithGitHub: (token: string) => Promise<void>;
-	logoutGitHub: () => void;
+	logoutGitHub: () => Promise<void>;
 	loadUserConfig: () => Promise<void>;
 }
 
@@ -37,7 +37,7 @@ export interface OllamaSlice {
 	isOllamaConnected: boolean;
 
 	fetchOllamaModels: () => Promise<void>;
-	selectModel: (model: string) => void;
+	selectModel: (model: string) => Promise<void>;
 	checkOllamaConnection: () => Promise<void>;
 }
 

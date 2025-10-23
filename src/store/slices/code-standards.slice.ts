@@ -50,8 +50,14 @@ export const createCodeStandardsSlice: StateCreator<
 
 			// Clear selection if deleted standard was selected
 			const state = get();
-			const deletedStandardId = typeof id === 'number' ? id.toString() : id;
-			if (state.selectedCodeStandard?.id === deletedStandardId) {
+			// Compare IDs (handle both string and number types)
+			const selectedId = state.selectedCodeStandard?.id;
+			const idAsString = String(id);
+			const matchesId =
+				selectedId === idAsString ||
+				(typeof selectedId === 'string' && Number(selectedId) === id);
+
+			if (matchesId) {
 				set({ selectedCodeStandard: null });
 			}
 		} catch (error) {

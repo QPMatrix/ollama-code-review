@@ -44,16 +44,21 @@ export const createOllamaSlice: StateCreator<AppStore, [], [], OllamaSlice> = (
 		}
 	},
 
-	selectModel: (model) => {
+	selectModel: async (model) => {
 		set({ selectedModel: model });
 
 		// Update user config
 		const config = get().userConfig;
-		if (config) {
-			databaseAPI.saveUserConfig({
+		if (!config) return;
+
+		try {
+			await databaseAPI.saveUserConfig({
 				...config,
 				selectedModel: model,
 			});
+		} catch (error) {
+			console.error('Failed to persist selected model:', error);
+			// State is already updated optimistically, so we don't revert
 		}
 	},
 });
