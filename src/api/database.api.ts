@@ -1,84 +1,91 @@
 import { invoke } from '@tauri-apps/api/core';
 import type { AppConfig, CodeReviewResponse, CodeStandard } from '@/schemas';
 
-export class DatabaseAPI {
-	async initDatabase(): Promise<string> {
-		return invoke<string>('init_database');
-	}
+type Invoke = typeof invoke;
 
-	/**
-	 * Save a code standard
-	 */
-	async saveCodeStandard(standard: CodeStandard): Promise<number> {
-		return invoke<number>('save_code_standard', { standard });
-	}
+const getGlobalInvoker = (): Invoke | undefined => {
+	const global = globalThis as unknown as {
+		__TAURI__?: {
+			invoke?: Invoke;
+			core?: { invoke?: Invoke };
+		};
+	};
+	return global.__TAURI__?.core?.invoke ?? global.__TAURI__?.invoke;
+};
 
-	/**
-	 * Get all code standards
-	 */
-	async getCodeStandards(): Promise<CodeStandard[]> {
-		return invoke<CodeStandard[]>('get_code_standards');
-	}
+const isTauriAvailable = () => Boolean(getGlobalInvoker());
 
-	/**
-	 * Get a code standard by ID
-	 */
-	async getCodeStandardById(id: number): Promise<CodeStandard> {
-		return invoke<CodeStandard>('get_code_standard_by_id', { id });
+const safeInvoke = async <T>(
+	command: string,
+	args?: Record<string, unknown>,
+) => {
+	const invoker = getGlobalInvoker();
+	if (!invoker) {
+		return undefined as T;
 	}
+	return invoker<T>(command, args);
+};
 
-	/**
-	 * Update a code standard
-	 */
-	async updateCodeStandard(id: number, standard: CodeStandard): Promise<void> {
-		return invoke<void>('update_code_standard', { id, standard });
-	}
-	/**
-	 * Delete a code standard
-	 */
-	async deleteCodeStandard(id: number): Promise<void> {
-		return invoke<void>('delete_code_standard', { id });
-	}
+export const initDatabase = async () =>
+	safeInvoke<string>('init_database') ?? Promise.resolve('noop');
 
-	/**
-	 * Save user configuration
-	 */
-	async saveUserConfig(config: AppConfig): Promise<void> {
-		return invoke<void>('save_user_config', { config });
-	}
+export const saveCodeStandard = async (standard: CodeStandard) =>
+	safeInvoke<number>('save_code_standard', { standard }) ?? Promise.resolve(0);
 
-	/**
-	 * Get user configuration
-	 */
-	async getUserConfig(): Promise<AppConfig | null> {
-		return invoke<AppConfig | null>('get_user_config');
-	}
+export const getCodeStandards = async () =>
+	safeInvoke<CodeStandard[]>('get_code_standards') ?? Promise.resolve([]);
 
-	/**
-	 * Save review history
-	 */
-	async saveReviewHistory(
-		filePath: string,
-		framework: string,
-		language: string,
-		reviewResult: string,
-		issuesFound: number,
-	): Promise<number> {
-		return invoke<number>('save_review_history', {
-			filePath,
-			framework,
-			language,
-			reviewResult,
-			issuesFound,
-		});
+export const getCodeStandardById = async (id: number) => {
+	const result = await safeInvoke<CodeStandard>('get_code_standard_by_id', {
+		id,
+	});
+	if (result === undefined && !isTauriAvailable()) {
+		throw new Error('Tauri invoke not available in this environment');
 	}
+	return result as CodeStandard;
+};
 
-	/**
-	 * Get review history
-	 */
-	async getReviewHistory(limit: number = 50): Promise<CodeReviewResponse[]> {
-		return invoke<CodeReviewResponse[]>('get_review_history', { limit });
-	}
-}
+export const updateCodeStandard = async (id: number, standard: CodeStandard) =>
+	safeInvoke<void>('update_code_standard', { id, standard }) ??
+	Promise.resolve();
 
-export const databaseAPI = new DatabaseAPI();
+export const deleteCodeStandard = async (id: number) =>
+	safeInvoke<void>('delete_code_standard', { id }) ?? Promise.resolve();
+
+export const saveUserConfig = async (config: AppConfig) =>
+	safeInvoke<void>('save_user_config', { config }) ?? Promise.resolve();
+
+export const getUserConfig = async () =>
+	safeInvoke<AppConfig | null>('get_user_config') ?? Promise.resolve(null);
+
+export const saveReviewHistory = async (
+	filePath: string,
+	framework: string,
+	language: string,
+	reviewResult: string,
+	issuesFound: number,
+) =>
+	safeInvoke<number>('save_review_history', {
+		filePath,
+		framework,
+		language,
+		reviewResult,
+		tissuesFound,
+	}) ?? Promise.resolve(0);
+
+export const getReviewHistory = async (limit: number = 50) =>
+	safeInvoke<CodeReviewResponse[]>('get_review_history', { limit }) ??
+	Promise.resolve([]);
+
+export const databaseAPI = {
+	initDatabase,
+	saveCodeStandard,
+	getCodeStandards,
+	getCodeStandardById,
+	updateCodeStandard,
+	deleteCodeStandard,
+	saveUserConfig,
+	getUserConfig,
+	saveReviewHistory,
+	getReviewHistory,
+};

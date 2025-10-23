@@ -2,11 +2,7 @@ import { type ClientOptions, fetch } from '@tauri-apps/plugin-http';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 type ResponseParser = 'json' | 'text' | 'arrayBuffer' | 'raw';
-
-interface FetchOptions extends RequestInit, ClientOptions {
-	query?: Record<string, string>;
-	timeout?: number;
-}
+type FetchOptions = RequestInit & ClientOptions;
 
 export interface HttpClientConfig {
 	baseUrl?: string;
@@ -24,160 +20,59 @@ export interface RequestOptions<TBody = unknown> {
 	skipErrorThrow?: boolean;
 }
 
-export class HttpClient {
-	private baseUrl?: string;
-	private defaultHeaders: Record<string, string>;
-	private defaultResponseType: ResponseParser;
-
-	constructor(config: HttpClientConfig = {}) {
-		this.baseUrl = config.baseUrl;
-		this.defaultHeaders = { ...config.defaultHeaders };
-		this.defaultResponseType = config.defaultResponseType ?? 'json';
-	}
-
-	setBaseUrl(baseUrl: string) {
-		this.baseUrl = baseUrl;
-	}
-
-	setDefaultHeaders(headers: Record<string, string>) {
-		this.defaultHeaders = { ...headers };
-	}
-
-	updateDefaultHeaders(headers: Record<string, string | null | undefined>) {
-		const nextHeaders = { ...this.defaultHeaders };
-
-		for (const [key, value] of Object.entries(headers)) {
-			if (value === null || value === undefined) {
-				delete nextHeaders[key];
-			} else {
-				nextHeaders[key] = value;
-			}
-		}
-
-		this.defaultHeaders = nextHeaders;
-	}
-
-	setDefaultResponseType(responseType: ResponseParser) {
-		this.defaultResponseType = responseType;
-	}
-
-	async request<TResponse = unknown, TBody = unknown>(
+export interface HttpClient {
+	setBaseUrl(baseUrl: string): void;
+	setDefaultHeaders(headers: Record<string, string>): void;
+	updateDefaultHeaders(
+		headers: Record<string, string | null | undefined>,
+	): void;
+	setDefaultResponseType(responseType: ResponseParser): void;
+	request<TResponse = unknown, TBody = unknown>(
 		path: string,
-		options: RequestOptions<TBody> = {},
-	): Promise<TResponse> {
-		const {
-			method = 'GET',
-			headers,
-			body,
-			query,
-			responseType = this.defaultResponseType,
-			timeout,
-		} = options;
-
-		const url = this.resolveUrl(path);
-		const mergedHeaders = this.mergeHeaders(headers);
-		const fetchOptions: FetchOptions = {
-			method,
-			headers: mergedHeaders,
-		};
-
-		if (timeout !== undefined) {
-			fetchOptions.timeout = timeout;
-		}
-
-		const normalizedQuery = this.normalizeQuery(query);
-		if (normalizedQuery) {
-			fetchOptions.query = normalizedQuery;
-		}
-
-		if (body !== undefined) {
-			const preparedBody = this.serializeBody(body, mergedHeaders);
-
-			if (preparedBody !== undefined) {
-				fetchOptions.body = preparedBody;
-			}
-		}
-
-		const response = await fetch(url, fetchOptions);
-
-		if (!response.ok && !options.skipErrorThrow) {
-			const errorBody = await response.text().catch(() => undefined);
-			const error = new Error(
-				`Request to ${url} failed with status ${response.status}${
-					errorBody ? `: ${errorBody}` : ''
-				}`,
-			);
-			throw error;
-		}
-
-		return this.extractResponseData<TResponse>(response, responseType);
-	}
-
+		options?: RequestOptions<TBody>,
+	): Promise<TResponse>;
 	get<TResponse = unknown>(
 		path: string,
 		options?: Omit<RequestOptions, 'method' | 'body'>,
-	) {
-		return this.request<TResponse>(path, { ...options, method: 'GET' });
-	}
-
+	): Promise<TResponse>;
 	post<TResponse = unknown, TBody = unknown>(
 		path: string,
 		body: TBody,
 		options?: Omit<RequestOptions<TBody>, 'method' | 'body'>,
-	) {
-		return this.request<TResponse, TBody>(path, {
-			...options,
-			method: 'POST',
-			body,
-		});
-	}
-
+	): Promise<TResponse>;
 	put<TResponse = unknown, TBody = unknown>(
 		path: string,
 		body: TBody,
 		options?: Omit<RequestOptions<TBody>, 'method' | 'body'>,
-	) {
-		return this.request<TResponse, TBody>(path, {
-			...options,
-			method: 'PUT',
-			body,
-		});
-	}
-
+	): Promise<TResponse>;
 	patch<TResponse = unknown, TBody = unknown>(
 		path: string,
 		body: TBody,
 		options?: Omit<RequestOptions<TBody>, 'method' | 'body'>,
-	) {
-		return this.request<TResponse, TBody>(path, {
-			...options,
-			method: 'PATCH',
-			body,
-		});
-	}
-
+	): Promise<TResponse>;
 	delete<TResponse = unknown, TBody = unknown>(
 		path: string,
 		options?: Omit<RequestOptions<TBody>, 'method'>,
-	) {
-		return this.request<TResponse, TBody>(path, {
-			...options,
-			method: 'DELETE',
-		});
-	}
+	): Promise<TResponse>;
+}
 
-	private mergeHeaders(headers?: Record<string, string>) {
-		return headers
-			? {
-					...this.defaultHeaders,
-					...headers,
-				}
-			: { ...this.defaultHeaders };
-	}
+export const createHttpClient = (config: HttpClientConfig = {}): HttpClient => {
+	let baseUrl = config.baseUrl;
+	let defaultHeaders = { ...config.defaultHeaders };
+	let defaultResponseType: ResponseParser =
+		config.defaultResponseType ?? 'json';
 
-	private normalizeQuery(
+	const hasHeader = (headers: Record<string, string>, name: string) => {
+		const target = name.toLowerCase();
+		return Object.keys(headers).some((key) => key.toLowerCase() === target);
+	};
+
+	const mergeHeaders = (headers?: Record<string, string>) =>
+		headers ? { ...defaultHeaders, ...headers } : { ...defaultHeaders };
+
+	const normalizeQuery = (
 		query?: Record<string, string | number | boolean | null | undefined>,
-	): Record<string, string> | undefined {
+	): Record<string, string> | undefined => {
 		if (!query) {
 			return undefined;
 		}
@@ -195,12 +90,12 @@ export class HttpClient {
 		}
 
 		return Object.fromEntries(entries);
-	}
+	};
 
-	private serializeBody<TBody>(
+	const serializeBody = <TBody>(
 		body: TBody,
 		headers: Record<string, string>,
-	): BodyInit | null | undefined {
+	): BodyInit | null | undefined => {
 		if (body instanceof Uint8Array) {
 			return body as unknown as BodyInit;
 		}
@@ -219,7 +114,7 @@ export class HttpClient {
 			(typeof Blob !== 'undefined' && body instanceof Blob) ||
 			body instanceof ArrayBuffer
 		) {
-			return body;
+			return body as unknown as BodyInit;
 		}
 
 		if (
@@ -227,7 +122,7 @@ export class HttpClient {
 			typeof body === 'object' &&
 			!(typeof ReadableStream !== 'undefined' && body instanceof ReadableStream)
 		) {
-			if (!this.hasHeader(headers, 'content-type')) {
+			if (!hasHeader(headers, 'content-type')) {
 				headers['Content-Type'] = 'application/json';
 			}
 			return JSON.stringify(body);
@@ -246,29 +141,24 @@ export class HttpClient {
 		}
 
 		return body as BodyInit;
-	}
+	};
 
-	private resolveUrl(path: string) {
-		if (!this.baseUrl) {
+	const resolveUrl = (path: string) => {
+		if (!baseUrl) {
 			return path;
 		}
 
 		try {
-			return new URL(path, this.baseUrl).toString();
+			return new URL(path, baseUrl).toString();
 		} catch {
 			return path;
 		}
-	}
+	};
 
-	private hasHeader(headers: Record<string, string>, name: string) {
-		const target = name.toLowerCase();
-		return Object.keys(headers).some((key) => key.toLowerCase() === target);
-	}
-
-	private async extractResponseData<T>(
+	const extractResponseData = async <T>(
 		response: Awaited<ReturnType<typeof fetch>>,
-		responseType: ResponseParser = this.defaultResponseType,
-	): Promise<T> {
+		responseType: ResponseParser,
+	): Promise<T> => {
 		switch (responseType) {
 			case 'text':
 				return (await response.text()) as unknown as T;
@@ -279,7 +169,118 @@ export class HttpClient {
 			default:
 				return (await response.json()) as unknown as T;
 		}
-	}
-}
+	};
 
-export const httpClient = new HttpClient();
+	const request = async <TResponse = unknown, TBody = unknown>(
+		path: string,
+		options: RequestOptions<TBody> = {},
+	): Promise<TResponse> => {
+		const {
+			method = 'GET',
+			headers,
+			body,
+			query,
+			responseType = defaultResponseType,
+			timeout,
+			skipErrorThrow,
+		} = options;
+
+		let url = resolveUrl(path);
+		const mergedHeaders = mergeHeaders(headers);
+		const fetchOptions: FetchOptions = {
+			method,
+			headers: mergedHeaders,
+		};
+
+		const normalizedQuery = normalizeQuery(query);
+		if (normalizedQuery) {
+			const queryString = new URLSearchParams(normalizedQuery).toString();
+			const separator = url.includes('?') ? '&' : '?';
+			url = `${url}${separator}${queryString}`;
+		}
+
+		let timeoutId: ReturnType<typeof setTimeout> | undefined;
+		if (timeout !== undefined) {
+			const controller = new AbortController();
+			fetchOptions.signal = controller.signal;
+			timeoutId = setTimeout(() => {
+				controller.abort();
+			}, timeout);
+		}
+
+		if (body !== undefined) {
+			const preparedBody = serializeBody(body, mergedHeaders);
+			if (preparedBody !== undefined) {
+				fetchOptions.body = preparedBody;
+			}
+		}
+
+		let response: Awaited<ReturnType<typeof fetch>>;
+		try {
+			response = await fetch(url, fetchOptions);
+		} catch (error) {
+			if (error instanceof Error && error.name === 'AbortError') {
+				throw new Error(`Request to ${url} timed out after ${timeout}ms`);
+			}
+			throw error;
+		} finally {
+			if (timeoutId) {
+				clearTimeout(timeoutId);
+			}
+		}
+
+		if (!response.ok && !skipErrorThrow) {
+			const errorBody = await response.text().catch(() => undefined);
+			throw new Error(
+				`Request to ${url} failed with status ${response.status}${
+					errorBody ? `: ${errorBody}` : ''
+				}`,
+			);
+		}
+
+		return extractResponseData<TResponse>(response, responseType);
+	};
+
+	return {
+		setBaseUrl(nextBaseUrl) {
+			baseUrl = nextBaseUrl;
+		},
+		setDefaultHeaders(headers) {
+			defaultHeaders = { ...headers };
+		},
+		updateDefaultHeaders(headers) {
+			const nextHeaders = { ...defaultHeaders };
+
+			for (const [key, value] of Object.entries(headers)) {
+				if (value === null || value === undefined) {
+					delete nextHeaders[key];
+				} else {
+					nextHeaders[key] = value;
+				}
+			}
+
+			defaultHeaders = nextHeaders;
+		},
+		setDefaultResponseType(responseType) {
+			defaultResponseType = responseType;
+		},
+		request,
+		get(path, options) {
+			return request(path, { ...options, method: 'GET' });
+		},
+		post(path, body, options) {
+			return request(path, { ...options, method: 'POST', body });
+		},
+		put(path, body, options) {
+			return request(path, { ...options, method: 'PUT', body });
+		},
+		patch(path, body, options) {
+			return request(path, { ...options, method: 'PATCH', body });
+		},
+		delete(path, options) {
+			return request(path, { ...options, method: 'DELETE' });
+		},
+	};
+};
+
+export const httpClient = createHttpClient();

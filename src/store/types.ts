@@ -8,8 +8,7 @@ import type {
 	OllamaModel,
 } from '@/schemas/schemas.types';
 
-// User & Authentication Slice
-export interface UserSlice {
+export interface UserState {
 	userConfig: AppConfig | null;
 	githubUser: GitHubUser | null;
 	isGitHubAuthenticated: boolean;
@@ -20,18 +19,17 @@ export interface UserSlice {
 	loadUserConfig: () => Promise<void>;
 }
 
-// GitHub Slice
-export interface GitHubSlice {
+export interface GitHubState {
 	githubOrgs: GitHubOrganization[];
 	githubRepos: GitHubRepository[];
 
 	fetchGitHubOrgs: () => Promise<void>;
 	fetchGitHubRepos: () => Promise<void>;
 	searchRepositories: (query: string) => Promise<void>;
+	clearGitHubData: () => void;
 }
 
-// Ollama Slice
-export interface OllamaSlice {
+export interface OllamaState {
 	ollamaModels: OllamaModel[];
 	selectedModel: string | null;
 	isOllamaConnected: boolean;
@@ -41,8 +39,7 @@ export interface OllamaSlice {
 	checkOllamaConnection: () => Promise<void>;
 }
 
-// Code Standards Slice
-export interface CodeStandardsSlice {
+export interface CodeStandardsState {
 	codeStandards: CodeStandard[];
 	selectedCodeStandard: CodeStandard | null;
 
@@ -53,8 +50,7 @@ export interface CodeStandardsSlice {
 	selectCodeStandard: (standard: CodeStandard | null) => void;
 }
 
-// Review Slice
-export interface ReviewSlice {
+export interface ReviewState {
 	currentReview: CodeReviewResponse | null;
 	isReviewing: boolean;
 	reviewHistory: CodeReviewResponse[];
@@ -69,29 +65,20 @@ export interface ReviewSlice {
 	clearCurrentReview: () => void;
 }
 
-// UI Slice
-export interface UISlice {
+export interface UIState {
 	sidebarOpen: boolean;
 	theme: 'light' | 'dark' | 'system';
+	currentPage: string;
 
 	setSidebarOpen: (open: boolean) => void;
 	setTheme: (theme: 'light' | 'dark' | 'system') => void;
+	setCurrentPage: (page: string) => void;
 }
 
-// App Slice (initialization)
-export interface AppSlice {
+export interface AppState {
 	isInitialized: boolean;
 	isInitializing: boolean;
 	initializationError: string | null;
 
 	initializeApp: () => Promise<void>;
 }
-
-// Combined Store Type
-export type AppStore = UserSlice &
-	GitHubSlice &
-	OllamaSlice &
-	CodeStandardsSlice &
-	ReviewSlice &
-	UISlice &
-	AppSlice;

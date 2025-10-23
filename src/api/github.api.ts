@@ -6,152 +6,151 @@ import {
 	type GitHubUser,
 	GitHubUserSchema,
 } from '@/schemas';
-import { HttpClient } from './http-client';
+import { createHttpClient, type HttpClient } from './http-client';
 
-export class GitHubAPI {
-	private token?: string;
-	private readonly baseUrl = 'https://api.github.com';
-	private readonly httpClient: HttpClient;
+export interface GitHubAPI {
+	setToken(token: string): void;
+	clearToken(): void;
+	getCurrentUser(): Promise<GitHubUser>;
+	getUserOrganizations(): Promise<GitHubOrganization[]>;
+	getUserRepositories(
+		page?: number,
+		perPage?: number,
+	): Promise<GitHubRepository[]>;
+	getOrganizationRepositories(
+		org: string,
+		page?: number,
+		perPage?: number,
+	): Promise<GitHubRepository[]>;
+	getFileContent(owner: string, repo: string, path: string): Promise<string>;
+	searchRepositories(
+		query: string,
+		page?: number,
+		perPage?: number,
+	): Promise<GitHubRepository[]>;
+}
 
-	constructor() {
-		this.httpClient = new HttpClient({ baseUrl: this.baseUrl });
-	}
+export const createGitHubAPI = (): GitHubAPI => {
+	let token: string | undefined;
+	const baseUrl = 'https://api.github.com';
+	const httpClient: HttpClient = createHttpClient({ baseUrl });
 
-	setToken(token: string) {
-		this.token = token;
-	}
-
-	clearToken() {
-		this.token = undefined;
-	}
-
-	private getHeaders() {
+	const getHeaders = () => {
 		const headers: Record<string, string> = {
 			Accept: 'application/vnd.github.v3+json',
 		};
 
-		if (this.token) {
-			headers.Authorization = `Bearer ${this.token}`;
+		if (token) {
+			headers.Authorization = `Bearer ${token}`;
 		}
 
 		return headers;
-	}
+	};
 
-	async getCurrentUser(): Promise<GitHubUser> {
-		if (!this.token) {
+	const ensureToken = () => {
+		if (!token) {
 			throw new Error('Github token not set');
 		}
+	};
 
-		try {
-			const response = await this.httpClient.get('/user', {
-				headers: this.getHeaders(),
-			});
+	return {
+		setToken(nextToken: string) {
+			token = nextToken;
+		},
+		clearToken() {
+			token = undefined;
+		},
+		async getCurrentUser() {
+			ensureToken();
 
-			return GitHubUserSchema.parse(response);
-		} catch (error) {
-			console.error('Error fetching GitHub user:', error);
-			throw error;
-		}
-	}
+			try {
+				const response = await httpClient.get('/user', {
+					headers: getHeaders(),
+				});
 
-	async getUserOrganizations(): Promise<GitHubOrganization[]> {
-		if (!this.token) {
-			throw new Error('Github token not set');
-		}
+				return GitHubUserSchema.parse(response);
+			} catch (error) {
+				console.error('Error fetching GitHub user:', error);
+				throw error;
+			}
+		},
+		async getUserOrganizations() {
+			ensureToken();
 
-		try {
-			const response = await this.httpClient.get('/user/orgs', {
-				headers: this.getHeaders(),
-			});
+			try {
+				const response = await httpClient.get('/user/orgs', {
+					headers: getHeaders(),
+				});
 
-			return GitHubOrganizationSchema.array().parse(response);
-		} catch (error) {
-			console.error('Error fetching GitHub organizations:', error);
-			throw error;
-		}
-	}
+				return GitHubOrganizationSchema.array().parse(response);
+			} catch (error) {
+				console.error('Error fetching GitHub organizations:', error);
+				throw error;
+			}
+		},
+		async getUserRepositories(page = 1, perPage = 30) {
+			ensureToken();
 
-	async getUserRepositories(
-		page: number = 1,
-		perPage: number = 30,
-	): Promise<GitHubRepository[]> {
-		if (!this.token) {
-			throw new Error('GitHub token not set');
-		}
-		try {
-			const response = await this.httpClient.get(
-				`/user/repos?page=${page}&per_page=${perPage}&sort=updated`,
-				{
-					headers: this.getHeaders(),
-				},
-			);
-			return GitHubRepositorySchema.array().parse(response);
-		} catch (error) {
-			console.error('Error fetching GitHub repositories:', error);
-			throw error;
-		}
-	}
+			try {
+				const response = await httpClient.get(
+					`/user/repos?page=${page}&per_page=${perPage}&sort=updated`,
+					{
+						headers: getHeaders(),
+					},
+				);
+				return GitHubRepositorySchema.array().parse(response);
+			} catch (error) {
+				console.error('Error fetching GitHub repositories:', error);
+				throw error;
+			}
+		},
+		async getOrganizationRepositories(org, page = 1, perPage = 30) {
+			ensureToken();
 
-	async getOrganizationRepositories(
-		org: string,
-		page: number = 1,
-		perPage: number = 30,
-	): Promise<GitHubRepository[]> {
-		if (!this.token) {
-			throw new Error('GitHub token not set');
-		}
-		try {
-			const response = await this.httpClient.get(
-				`/orgs/${org}/repos?page=${page}&per_page=${perPage}&sort=updated`,
-				{
-					headers: this.getHeaders(),
-				},
-			);
-			return GitHubRepositorySchema.array().parse(response);
-		} catch (error) {
-			console.error('Error fetching organization repositories:', error);
-			throw error;
-		}
-	}
-	async getFileContent(
-		owner: string,
-		repo: string,
-		path: string,
-	): Promise<string> {
-		if (!this.token) {
-			throw new Error('GitHub token not set');
-		}
-		try {
-			const response = await this.httpClient.get<{
-				content: string;
-				encoding: string;
-			}>(`/repos/${owner}/${repo}/contents/${path}`, {
-				headers: this.getHeaders(),
-			});
-			const content = atob(response.content.replace(/\n/g, ''));
-			return content;
-		} catch (error) {
-			console.error('Error fetching file content:', error);
-			throw error;
-		}
-	}
-	async searchRepositories(
-		query: string,
-		page: number = 1,
-		perPage: number = 30,
-	): Promise<GitHubRepository[]> {
-		try {
-			const response = await this.httpClient.get<{ items: GitHubRepository[] }>(
-				`/search/repositories?q=${encodeURIComponent(query)}&page=${page}&per_page=${perPage}`,
-				{
-					headers: this.getHeaders(),
-				},
-			);
-			return GitHubRepositorySchema.array().parse(response.items);
-		} catch (error) {
-			console.error('Error searching repositories:', error);
-			throw error;
-		}
-	}
-}
-export const githubAPI = new GitHubAPI();
+			try {
+				const response = await httpClient.get(
+					`/orgs/${org}/repos?page=${page}&per_page=${perPage}&sort=updated`,
+					{
+						headers: getHeaders(),
+					},
+				);
+				return GitHubRepositorySchema.array().parse(response);
+			} catch (error) {
+				console.error('Error fetching organization repositories:', error);
+				throw error;
+			}
+		},
+		async getFileContent(owner, repo, path) {
+			ensureToken();
+
+			try {
+				const response = await httpClient.get<{
+					content: string;
+					encoding: string;
+				}>(`/repos/${owner}/${repo}/contents/${path}`, {
+					headers: getHeaders(),
+				});
+				return atob(response.content.replace(/\n/g, ''));
+			} catch (error) {
+				console.error('Error fetching file content:', error);
+				throw error;
+			}
+		},
+		async searchRepositories(query, page = 1, perPage = 30) {
+			try {
+				const response = await httpClient.get<{ items: GitHubRepository[] }>(
+					`/search/repositories?q=${encodeURIComponent(query)}&page=${page}&per_page=${perPage}`,
+					{
+						headers: getHeaders(),
+					},
+				);
+				return GitHubRepositorySchema.array().parse(response.items);
+			} catch (error) {
+				console.error('Error searching repositories:', error);
+				throw error;
+			}
+		},
+	};
+};
+
+export const githubAPI = createGitHubAPI();
