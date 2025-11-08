@@ -1,14 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Button } from "antd";
+import { Button, Layout } from "antd";
 
 export const Route = createFileRoute("/")({
 	component: RouteComponent,
 });
 
 function RouteComponent() {
+	const { Content } = Layout;
 	return (
-		<div>
+		<Content>
 			<Button>test</Button>
-		</div>
+		</Content>
 	);
 }
