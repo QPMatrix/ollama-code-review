@@ -7,13 +7,13 @@ import { lightColorTheme } from "./theme/light";
 
 export const AntdProvider: FC<PropsWithChildren> = ({ children }) => {
 	const { defaultAlgorithm, darkAlgorithm } = antdTheme;
-	const { isMounted } = useIsMounted();
+	const { getIsMounted } = useIsMounted();
 	// Default to light mode for SSR and initial render
 	const [isDarkMode, setIsDarkMode] = useState(false);
 
 	useEffect(() => {
 		// This code runs only in browser, after mount
-		if (!isMounted) {
+		if (!getIsMounted()) {
 			return;
 		}
 
@@ -29,7 +29,7 @@ export const AntdProvider: FC<PropsWithChildren> = ({ children }) => {
 		applyTheme();
 		mq.addEventListener("change", applyTheme);
 		return () => mq.removeEventListener("change", applyTheme);
-	}, [isMounted]);
+	}, [getIsMounted]);
 
 	return (
 		<ConfigProvider

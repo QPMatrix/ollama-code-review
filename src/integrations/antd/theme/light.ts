@@ -30,9 +30,9 @@ export const lightColorTheme: Partial<AliasToken> = {
 	controlHeight: 32,
 	controlHeightLG: 40,
 	controlHeightSM: 24,
-	motionDurationSlow: "0.3",
-	motionDurationMid: "0.15",
-	motionDurationFast: "0.1",
+	motionDurationSlow: "0.3ms",
+	motionDurationMid: "0.15ms",
+	motionDurationFast: "0.1ms",
 	colorBgContainerDisabled: "rgba(0,0,0,0.25)",
 	wireframe: false,
 };
