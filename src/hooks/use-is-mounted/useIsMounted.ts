@@ -10,6 +10,7 @@ export const useIsMounted = () => {
 		};
 	}, []);
 
-	const isMounted = useCallback(() => isMountedRef.current, []);
+	const isMountedFn = useCallback(() => isMountedRef.current, []);
+	const isMounted = isMountedFn();
 	return { isMounted };
 };

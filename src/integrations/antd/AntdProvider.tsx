@@ -13,7 +13,9 @@ export const AntdProvider: FC<PropsWithChildren> = ({ children }) => {
 
 	useEffect(() => {
 		// This code runs only in browser, after mount
-		if (!isMounted()) return;
+		if (!isMounted) {
+			return;
+		}
 
 		const mq = window.matchMedia("(prefers-color-scheme: dark)");
 		const applyTheme = () => {
