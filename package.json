@@ -30,6 +30,7 @@
     "@tanstack/react-store": "^0.7.0",
     "@tanstack/router-plugin": "^1.132.0",
     "@tanstack/store": "^0.7.0",
+    "antd": "^5.28.0",
     "lucide-react": "^0.544.0",
     "pg": "^8.11.0",
     "prisma": "^6.16.3",
