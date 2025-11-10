@@ -6,8 +6,8 @@ import {
 	Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { AntdProvider } from "@/integrations/antd/AntdProvider";
 import Header from "../components/Header";
-
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import StoreDevtools from "../lib/demo-store-devtools";
 import appCss from "../styles.css?url";
@@ -48,7 +48,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<HeadContent />
 			</head>
 			<body>
-				{children}
+				<AntdProvider>{children}</AntdProvider>
 				<TanStackDevtools
 					config={{
 						position: "bottom-right",
