@@ -1,14 +1,10 @@
 {
-  "projectName": "ollama-code-review",
+  "projectName": ".",
   "mode": "file-router",
   "typescript": true,
   "tailwind": true,
   "packageManager": "bun",
-  "addOnOptions": {
-    "prisma": {
-      "database": "postgres"
-    }
-  },
+  "addOnOptions": {},
   "git": true,
   "version": 1,
   "framework": "react-cra",
@@ -16,7 +12,6 @@
     "biome",
     "start",
     "compiler",
-    "prisma",
     "store",
     "tanstack-query"
   ]

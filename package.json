@@ -1,5 +1,5 @@
 {
-  "name": "ollama-code-review",
+  "name": ".",
   "private": true,
   "type": "module",
   "scripts": {
@@ -9,18 +9,10 @@
     "test": "vitest run",
     "format": "biome format",
     "lint": "biome lint",
-    "check": "biome check",
-    "post-cta-init": "npx create-db@latest",
-    "db:generate": "dotenv -e .env.local -- prisma generate",
-    "db:push": "dotenv -e .env.local -- prisma db push",
-    "db:migrate": "dotenv -e .env.local -- prisma migrate dev",
-    "db:studio": "dotenv -e .env.local -- prisma studio",
-    "db:seed": "dotenv -e .env.local -- prisma db seed"
+    "check": "biome check"
   },
   "dependencies": {
     "@ant-design/v5-patch-for-react-19": "^1.0.3",
-    "@prisma/client": "^6.16.3",
-    "@tailwindcss/vite": "^4.0.6",
     "@tanstack/react-devtools": "^0.7.0",
     "@tanstack/react-query": "^5.66.5",
     "@tanstack/react-query-devtools": "^5.84.2",
@@ -32,12 +24,10 @@
     "@tanstack/router-plugin": "^1.132.0",
     "@tanstack/store": "^0.7.0",
     "antd": "^5.28.0",
+    "better-auth": "^1.3.34",
     "lucide-react": "^0.544.0",
-    "pg": "^8.11.0",
-    "prisma": "^6.16.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "tailwindcss": "^4.0.6",
     "vite-tsconfig-paths": "^5.1.4"
   },
   "devDependencies": {
@@ -46,20 +36,14 @@
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.2.0",
     "@types/node": "^22.10.2",
-    "@types/pg": "^8.10.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.0.4",
     "babel-plugin-react-compiler": "^1.0.0",
-    "dotenv-cli": "^10.0.0",
     "jsdom": "^27.0.0",
-    "ts-node": "^10.9.2",
     "typescript": "^5.7.2",
     "vite": "^7.1.7",
     "vitest": "^3.0.5",
     "web-vitals": "^5.1.0"
-  },
-  "prisma": {
-    "seed": "ts-node seed.ts"
   }
 }
